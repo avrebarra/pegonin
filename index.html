@@ -134,7 +134,7 @@
       const output = document.querySelector('textarea[name="outputbox"]');
 
       input.addEventListener("input", (e) => {
-        output.value = convert(input.value);
+        output.value = convert(input.value.toLowerCase());
       });
     });
   </script>
