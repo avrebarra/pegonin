@@ -116,15 +116,6 @@
           output = output + remainder[0];
           cur++;
         }
-
-        // if duplicated character skip and just add siddah
-        if (
-          remainder.length >= 2 &&
-          !vocal_list.includes(remainder[0]) &&
-          remainder[0] == remainder[1]
-        ) {
-          cur++;
-        }
       }
       return output;
     }
