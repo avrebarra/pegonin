@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link
+      href="https://unpkg.com/tailwindcss@^2/dist/tailwind.min.css"
+      rel="stylesheet"
+    />
+    <title></title>
+  </head>
+  <body>
+    <div class="flex flex-col justify-center bg-gray-100 w-full">
+      <input
+        class="text-5xl outline-none p-5 px-32 text-center"
+        name="inputbox"
+        type="text"
+        placeholder="coba tulis sesuatu disini"
+      />
+      <textarea
+        name="outputbox"
+        class="text-6xl outline-none p-5 px-32 text-center"
+        type="text"
+        disabled
+      ></textarea>
+    </div>
+  </body>
+  <script>
+    const vocal_list = ["i", "u", "e", "o"];
+    const ignore_list = [" ", "-", "+", "-", "=", "(", ")"];
+    const mapper = {
+      ng: "ع",
+      ny: "ۑ",
+      0: "٠",
+      1: "١",
+      2: "٢",
+      3: "٣",
+      4: "٤",
+      5: "٥",
+      6: "٦",
+      7: "٧",
+      8: "٨",
+      9: "٩",
+      a: "ا",
+      b: "ب",
+      c: "چ",
+      d: "د",
+      e: "ي",
+      f: "ف",
+      g: "ك",
+      h: "ه",
+      i: "ي",
+      j: "ج",
+      k: "ك",
+      l: "ل",
+      m: "م",
+      n: "ن",
+      o: "و",
+      p: "ف",
+      q: "ق",
+      r: "ر",
+      s: "س",
+      t: "ت",
+      u: "و",
+      v: "ف",
+      w: "و",
+      x: "كس",
+      y: "ي",
+      z: "ز",
+    };
+
+    function convert(input) {
+      let output = "";
+
+      let cur = 0;
+      while (cur < input.length) {
+        const remainder = input.slice(cur, input.length);
+
+        // if ignore list then just treat as space
+        const ignoredch = ignore_list.find((x) => x == remainder[0]);
+        // console.log(cur, remainder);
+        if (ignoredch) {
+          output = output + remainder[0];
+          input[cur + 1] = " ";
+          cur += 1;
+          continue;
+        }
+
+        // if char is vocal and previous value is space or ignored char, add alif
+        if (
+          vocal_list.includes(remainder[0]) &&
+          (cur == 0 ||
+            ignore_list.includes(input.slice(cur - 1, input.length)[0]))
+        ) {
+          output = output + "ا";
+        }
+
+        // iterative search with regex
+        let hit = false;
+        for (const char in mapper) {
+          let ch = char;
+          const rx = new RegExp(`^${ch}`);
+          const res = remainder.search(rx) == 0;
+          if (res) {
+            output = output + mapper[ch];
+            hit = true;
+            cur += ch.length;
+            break;
+          }
+        }
+        if (!hit) {
+          output = output + remainder[0];
+          cur++;
+        }
+
+        // if duplicated character skip and just add siddah
+        if (
+          remainder.length >= 2 &&
+          !vocal_list.includes(remainder[0]) &&
+          remainder[0] == remainder[1]
+        ) {
+          cur++;
+        }
+      }
+      return output;
+    }
+
+    document.addEventListener("DOMContentLoaded", function (event) {
+      const input = document.querySelector('input[name="inputbox"]');
+      const output = document.querySelector('textarea[name="outputbox"]');
+
+      input.addEventListener("input", (e) => {
+        output.value = convert(input.value);
+      });
+    });
+  </script>
+</html>
