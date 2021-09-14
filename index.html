@@ -13,14 +13,14 @@
   <body class="bg-gray-100">
     <div class="flex flex-col justify-center bg-gray-100 w-full">
       <input
-        class="text-5xl outline-none p-10 px-32 text-center font-semibold"
+        class="text-5xl outline-none p-10 text-center font-semibold"
         name="inputbox"
         type="text"
         placeholder="tulis dan pegonin disini"
       />
       <textarea
         name="outputbox"
-        class="text-6xl bg-gray-100 outline-none py-10 px-32 text-center"
+        class="text-6xl bg-gray-100 outline-none p-10 text-right"
         type="text"
         rows="5"
         disabled
@@ -30,11 +30,19 @@
     </div>
   </body>
   <script>
+    const regex_breaker_list = [".", "?"];
     const vocal_list = ["i", "u", "e", "o"];
     const ignore_list = [" ", "-", "+", "-", "=", "(", ")"];
     const mapper = {
+      // regex safe
+      "@.": ".",
+      "@?": "؟",
+
+      // combined words
       ng: "ع",
       ny: "ۑ",
+
+      // numbers
       0: "٠",
       1: "١",
       2: "٢",
@@ -45,6 +53,8 @@
       7: "٧",
       8: "٨",
       9: "٩",
+
+      // normals
       a: "ا",
       b: "ب",
       c: "چ",
@@ -82,7 +92,6 @@
 
         // if ignore list then just treat as space
         const ignoredch = ignore_list.find((x) => x == remainder[0]);
-        // console.log(cur, remainder);
         if (ignoredch) {
           output = output + remainder[0];
           input[cur + 1] = " ";
@@ -99,10 +108,21 @@
           output = output + "ا";
         }
 
-        // iterative search with regex
+        // if regex breaking character, try exact match
+        if (regex_breaker_list.includes(remainder[0])) {
+          ch = remainder[0];
+          output = output + mapper["@" + ch];
+          cur += 1;
+          continue;
+        }
+
         let hit = false;
+        // iterative search
         for (const char in mapper) {
           let ch = char;
+
+          if (ch.startsWith("@")) continue;
+
           const rx = new RegExp(`^${ch}`);
           const res = remainder.search(rx) == 0;
           if (res) {
